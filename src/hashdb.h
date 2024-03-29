@@ -1,3 +1,13 @@
+/*
+COP4600 PA#2 Group 31
+Evelyn Adams
+Andrew Brink
+Alicia Hassan
+Jonah Henriksson
+
+Concurrent Hash Table implementation,
+including Jenkins function and all linked list operations
+*/
 #ifndef HASHDB_H
 #define HASHDB_H
 
