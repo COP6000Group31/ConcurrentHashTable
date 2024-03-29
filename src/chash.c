@@ -38,7 +38,7 @@ int main() {
   uint32_t salary;
   int num_threads;
 
-  //process the input file
+  //process line 1 of input file
   if (fgets(line, MAX_LINE_LENGTH, input_fp) == NULL) {
         perror("Error reading the number of threads");
         fclose(input_fp);
@@ -55,17 +55,17 @@ int main() {
     }
 
   //process the rest of the infile
-  while (fgets(line, sizeof(line), inFile)){
-    sscanf(line, "%[^,],%[^,],%d", command, name, &salary);
+  while (fgets(line, MAX_LINE_LENGTH, inFile)){
+    sscanf(line, "%s %s %u", command, name, &salary);  //add check that reads correctly
 
     if(strcmp(command, "insert") == 0){
-
+      insert(name, salary);
     }
     else if (strcmp(command, "delete") == 0){
-
+      delete(name);
     }
     else if (strcmp(command, "search") == 0){
-
+      printTable(outFile);
     }
     else if (strcmp(command, "print") == 0){
 
