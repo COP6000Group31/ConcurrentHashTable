@@ -18,4 +18,16 @@ typedef struct HashTable {
 
 } HashTable;
 
+/// Initialize the hash table.
+void hash_table_init(HashTable *ht);
+
+/// Insert or update a record in the hash table.
+void hash_table_insert(HashTable *ht, char *name, uint32_t salary);
+
+/// Delete a record from the hash table.
+void hash_table_delete(HashTable *ht, char *name);
+
+/// Search the hash table for the key and return a pointer to the value.
+uint32_t *hash_table_search(HashTable *ht, char *name);
+
 #endif // HASHDB_H
