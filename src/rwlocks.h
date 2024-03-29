@@ -7,7 +7,7 @@
 
 /// A Read-Write lock for arbitrary data.
 ///
-/// By providing guards for read and writing, the interface is safe from readers
+/// By providing guards for reads/writes, the interface is safe from readers
 /// writing. It could be safer, but alas, C lacks generics and move semantics.
 typedef struct RwLock {
   uint32_t num_ra;     //< Number of readers active.
