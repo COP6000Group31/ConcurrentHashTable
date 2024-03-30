@@ -54,18 +54,22 @@ int main() {
         return 1;
     }
 
+  //create empty hash table
+  //-> relpace with init function once we define the struct
+  HashTable hashTable;
+
   //process the rest of the infile
   while (fgets(line, MAX_LINE_LENGTH, inFile)){
     sscanf(line, "%s %s %u", command, name, &salary);  //add check that reads correctly
 
     if(strcmp(command, "insert") == 0){
-      insert(name, salary);
+      hash_table_insert(&hashTable, &name, salary);
     }
     else if (strcmp(command, "delete") == 0){
-      delete(name);
+      hash_table_delete(&hashTable, &name);
     }
     else if (strcmp(command, "search") == 0){
-      printTable(outFile);
+      HashRecord record = hash_table_search(&hashTable, &name)
     }
     else if (strcmp(command, "print") == 0){
 
