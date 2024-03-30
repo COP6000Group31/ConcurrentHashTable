@@ -59,6 +59,7 @@ int main() {
   //create a hash table
   //-> relpace with init function once we define it
   struct HashTable hashTable;
+  struct HashRecord *head;
 
   //process the rest of the infile
   while (fgets(line, MAX_LINE_LENGTH, inFile)){
@@ -78,7 +79,7 @@ int main() {
       fprintf(output, "%d,%s,%u\n", record->hash, record->name, record->salary);
     }
     else if (strcmp(command, "print") == 0){
-
+      print_hash_table(head, outFile);
     }
   }
 

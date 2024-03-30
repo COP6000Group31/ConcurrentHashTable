@@ -21,7 +21,7 @@ typedef struct HashRecord {
   char name[NAME_LEN];     ///< Name of employee.
   uint32_t salary;         ///< Annual salary of employee.
   struct HashRecord *next; ///< Next node in the list.
-  struct HashRecord *last; ///< previous node in the list. 
+  struct HashRecord *last; ///< previous node in the list.
 } HashRecord;
 
 /// A concurrent hash table.
@@ -40,5 +40,8 @@ void hash_table_delete(HashTable *ht, char *name);
 
 /// Search the hash table for the key and return a pointer to the value.
 uint32_t *hash_table_search(HashTable *ht, char *name);
+
+/// Print the entire hash table to the output file. 
+void print_hash_table(HashRecord *cur, FILE *outFile);
 
 #endif // HASHDB_H
