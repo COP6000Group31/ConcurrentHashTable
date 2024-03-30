@@ -39,18 +39,18 @@ int main() {
   int num_threads;
 
   //process line 1 of input file
-  if (fgets(line, MAX_LINE_LENGTH, input_fp) == NULL) {
+  if (fgets(line, MAX_LINE_LENGTH, inFile) == NULL) {
         perror("Error reading the number of threads");
-        fclose(input_fp);
-        fclose(output_fp);
+        fclose(inFile);
+        fclose(outFile);
         return 1;
     }
 
     //Parse line 1 to get the number of threads
     if (sscanf(line, "threads,%d,0", &num_threads) != 1) {
         perror("Invalid format in the first line");
-        fclose(input_fp);
-        fclose(output_fp);
+        fclose(inFile);
+        fclose(outFile);
         return 1;
     }
 
