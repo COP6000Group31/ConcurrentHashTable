@@ -7,3 +7,5 @@ Jonah Henriksson
 
 Reader-Writer locks struct definitions
 */
+
+#include "rwlocks.h"
