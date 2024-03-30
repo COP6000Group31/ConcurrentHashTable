@@ -21,6 +21,7 @@ typedef struct HashRecord {
   char name[NAME_LEN];     ///< Name of employee.
   uint32_t salary;         ///< Annual salary of employee.
   struct HashRecord *next; ///< Next node in the list.
+  struct HashRecord *last; ///< previous node in the list. 
 } HashRecord;
 
 /// A concurrent hash table.
