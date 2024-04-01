@@ -20,6 +20,7 @@ void hash_table_init(HashTable *ht){
 // Delete a record from the hash table.
 void hash_table_delete(HashTable *ht, char *name){
   //aquire write lock
+  rw_lock_write(&ht->lock, ht->head)
 
   // search for the record
   HashRecord delRec = unlocked_hash_table_search(ht, name);
@@ -40,7 +41,7 @@ void hash_table_delete(HashTable *ht, char *name){
   free(delRec);
 
   //free the lock
-
+  rw_lock_drop_write(&ht->lock, ht->head)
   return;
 }
 
