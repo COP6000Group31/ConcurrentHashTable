@@ -9,11 +9,20 @@ Concurrent Hash Table struct definitions
 */
 #include "hashdb.h"
 
+/// Initialize the hash table.
+void hash_table_init(HashTable *ht){
+  ht->head = NULL;
+  rw_lock_init(&ht->lock, &ht->head);
+
+  return;
+}
 
 // Delete a record from the hash table.
 void hash_table_delete(HashTable *ht, char *name){
+  //aquire write lock
+
   // search for the record
-  HashRecord* delRec = hash_table_search(&hashTable, &name)
+  HashRecord delRec = unlocked_hash_table_search(ht, name);
 
   // base case
   if (*delRec == NULL)
@@ -29,6 +38,9 @@ void hash_table_delete(HashTable *ht, char *name){
 
   // Free the memory of the deleted record
   free(delRec);
+
+  //free the lock
+
   return;
 }
 
@@ -39,4 +51,72 @@ void print_hash_table(HashRecord *cur, FILE *outFile){
     fprintf(outFile, "%u,%s,%u\n", cur->hash, cur->name, cur->salary);
     cur = cur->next;
   }
+
+  return;
+}
+
+HashRecord *unlocked_hash_table_search(HashTable *ht, char *name){
+  // compute the search key's hash value
+  uint32_t hash = jenkins_one_at_a_time_hash(name, strlen(name));
+
+  //start at head of list
+  HashRecord *current = ht->head;
+
+  // search the linked list for hash
+  while (current != NULL) {
+    // if key is found, stop looking
+    if (current->hash == hash) {
+      break;
+    }
+
+    current = current->next;
+  }
+
+  return current;
+}
+
+
+HashRecord *hash_table_search(HashTable *ht, char *name) {
+
+  // acquire the read lock of the linked list
+  // ht->rg = rw_lock_read(ht->lock);
+  HashRecord *result = unlocked_hash_table_search(ht, name)
+  // release the read lock
+  // rw_lock_drop_write(ht->lock, ht->wg);
+
+  return result;
+}
+
+void hash_table_insert(HashTable *ht, char *name, uint32_t salary) {
+  int len = strlen(name);
+  uint32_t hash = jenkins_one_at_a_time_hash(name, len);
+
+  // Search for the key in the linked list
+  HashRecord *current = ht->head;
+  while (current != NULL) {
+    if (current->hash == hash) {
+      current->salary = salary;
+      return;
+    }
+    current = current->next;
+  }
+
+  // Create a new node for the key-data pair
+  HashRecord *newRecord = (HashRecord *)malloc(sizeof(HashRecord));
+  if (newRecord == NULL) {
+    printf("Memory allocation failed.\n");
+    return;
+  }
+  newRecord->hash = hash;
+  strcpy(newRecord->name, name);
+  newRecord->salary = salary;
+  newRecord->next = NULL;
+  newRecord->prev = NULL;
+
+  // Insert the new node at the beginning of the linked list
+  newRecord->next = ht->head;
+  if (ht->head != NULL) {
+    ht->head->prev = newRecord;
+  }
+  ht->head = newRecord;
 }

@@ -26,7 +26,8 @@ typedef struct HashRecord {
 
 /// A concurrent hash table.
 typedef struct HashTable {
-
+  HashRecord head;
+  RwLock lock;
 } HashTable;
 
 /// Initialize the hash table.
@@ -41,7 +42,7 @@ void hash_table_delete(HashTable *ht, char *name);
 /// Search the hash table for the key and return a pointer to the value.
 uint32_t *hash_table_search(HashTable *ht, char *name);
 
-/// Print the entire hash table to the output file. 
+/// Print the entire hash table to the output file.
 void print_hash_table(HashRecord *cur, FILE *outFile);
 
 #endif // HASHDB_H
