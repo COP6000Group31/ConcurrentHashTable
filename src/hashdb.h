@@ -1,6 +1,7 @@
 #ifndef HASHDB_H
 #define HASHDB_H
 
+#include "rwlocks.h"
 #include <stdint.h>
 
 #define NAME_LEN 50
