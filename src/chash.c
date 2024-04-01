@@ -8,10 +8,9 @@ Jonah Henriksson
 Main program that reads the commands.txt and
 produces output to the console
 */
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include "hashdb.h"
+#include "rwlocks.h"
+#include <common.h>
 
 #define MAX_LINE_LENGTH 100
 #define COMMAND_LEN 10
@@ -85,5 +84,6 @@ int main() {
   //close all files
   fclose(inFile);
   fclose(outFile);
+
   return 0;
 }

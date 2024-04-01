@@ -9,6 +9,9 @@ Concurrent Hash Table struct definitions
 */
 #include "hashdb.h"
 
+#include <stdint.h>
+#include <stdlib.h>
+
 /// Initialize the hash table.
 void hash_table_init(HashTable *ht){
   ht->head = NULL;
@@ -22,7 +25,7 @@ void hash_table_delete(HashTable *ht, char *name){
   //aquire write lock
 
   // search for the record
-  HashRecord delRec = unlocked_hash_table_search(ht, name);
+  HashRecord *delRec = unlocked_hash_table_search(ht, name);
 
   // base case
   if (*delRec == NULL)
@@ -42,16 +45,30 @@ void hash_table_delete(HashTable *ht, char *name){
   //free the lock
 
   return;
+
+// Jenkins one at a time hash function
+uint32_t jenkins_one_at_a_time_hash(const char *key, size_t length) {
+  size_t i = 0;
+  uint32_t hash = 0;
+  while (i != length) {
+    hash += key[i++];
+    hash += hash << 10;
+    hash ^= hash >> 6;
+  }
+  hash += hash << 3;
+  hash ^= hash >> 11;
+  hash += hash << 15;
+  return hash;
 }
+
 
 /* given the head of the hash table, print the entire contents
    of the list to the output file */
-void print_hash_table(HashRecord *cur, FILE *outFile){
+void print_hash_table(HashRecord *cur, FILE *outFile) {
   while (cur != NULL) {
     fprintf(outFile, "%u,%s,%u\n", cur->hash, cur->name, cur->salary);
     cur = cur->next;
   }
-
   return;
 }
 
@@ -67,14 +84,7 @@ HashRecord *unlocked_hash_table_search(HashTable *ht, char *name){
     // if key is found, stop looking
     if (current->hash == hash) {
       break;
-    }
-
-    current = current->next;
-  }
-
-  return current;
 }
-
 
 HashRecord *hash_table_search(HashTable *ht, char *name) {
 
@@ -85,6 +95,8 @@ HashRecord *hash_table_search(HashTable *ht, char *name) {
   // rw_lock_drop_write(ht->lock, ht->wg);
 
   return result;
+  // release the read lock
+  // rw_lock_drop_write(ht->lock, ht->wg);
 }
 
 void hash_table_insert(HashTable *ht, char *name, uint32_t salary) {
