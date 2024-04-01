@@ -86,7 +86,6 @@ int main() {
     }
   }
 
-  //close all files
   fclose(inFile);
   fclose(outFile);
   

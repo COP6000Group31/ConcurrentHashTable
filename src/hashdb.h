@@ -27,7 +27,7 @@ typedef struct HashRecord {
 
 /// A concurrent hash table.
 typedef struct HashTable {
-
+  HashRecord* head;
 } HashTable;
 
 /// Initialize the hash table.
