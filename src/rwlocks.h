@@ -20,12 +20,12 @@ Reader-Writer locks implementation
 /// By providing guards for reads/writes, the interface is safe from readers
 /// writing. It could be safer, but alas, C lacks generics and move semantics.
 typedef struct RwLock {
-  uint32_t num_ra;     //< Number of readers active.
-  uint32_t num_ww;     //< Number of writers waiting.
-  bool wa;             //< If there is an active writer.
-  pthread_mutex_t g;   //< Mutex for critical area.
-  pthread_cond_t cond; //< Condition variable for blocking threads.
-  void *data;          //< Associated data of lock.
+  uint32_t num_ra;     ///< Number of readers active.
+  uint32_t num_ww;     ///< Number of writers waiting.
+  bool wa;             ///< If there is an active writer.
+  pthread_mutex_t g;   ///< Mutex for critical area.
+  pthread_cond_t cond; ///< Condition variable for blocking threads.
+  void *data;          ///< Associated data of lock.
 } RwLock;
 
 /// A guard for readers.
