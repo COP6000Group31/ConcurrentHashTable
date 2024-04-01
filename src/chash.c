@@ -1,62 +1,94 @@
+/*
+COP4600 PA#2 Group 31
+Evelyn Adams
+Andrew Brink
+Alicia Hassan
+Jonah Henriksson
+
+Main program that reads the commands.txt and
+produces output to the console
+*/
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "hashdb.h"
 #include "rwlocks.h"
 #include <common.h>
 #include <stdio.h>
 
-RwLock lock;
-
-typedef struct ThreadData {
-  int new_data;
-} ThreadData;
-
-void *normalThread(void *arg) {
-  ThreadData *td = arg;
-
-  Spin(td->new_data);
-
-  WGuard write = rw_lock_write(&lock);
-
-  *(int *)write.data = td->new_data;
-
-  printf("%d\n", *(int *)write.data);
-
-  rw_lock_drop_write(&lock, write);
-  return NULL;
-}
-
-void *readThread(void *arg) {
-  Spin(8);
-  RGuard read = rw_lock_read(&lock);
-
-  int data = *(int const *)read.data;
-
-  printf("%d\n", data);
-
-  rw_lock_drop_read(&lock, read);
-  return NULL;
-}
+#define MAX_LINE_LENGTH 100
+#define COMMAND_LEN 10
 
 int main() {
-  int data = 0;
+  FILE *inFile, *outFile;
 
-  rw_lock_init(&lock, &data);
+  //Open input file
+  inFile = fopen("commands.txt", "r");
+  if (inFile == NULL) {
+      perror("Error opening input file");
+      return 1;
+  }
 
-  pthread_t t0;
-  pthread_t t1;
-  pthread_t t2;
-  pthread_t t3;
-  pthread_t t4;
-  Pthread_create(&t0, NULL, normalThread, &(ThreadData){1});
-  Pthread_create(&t1, NULL, normalThread, &(ThreadData){5});
-  Pthread_create(&t2, NULL, normalThread, &(ThreadData){3});
-  Pthread_create(&t3, NULL, normalThread, &(ThreadData){10});
-  Pthread_create(&t4, NULL, readThread, NULL);
+  //Open Output File
+  outFile = fopen("output.txt", "w");
+  if (outFile == NULL) {
+      perror("Error opening input file");
+      return 1;
+  }
 
-  Pthread_join(t0, NULL);
-  Pthread_join(t1, NULL);
-  Pthread_join(t2, NULL);
-  Pthread_join(t3, NULL);
-  Pthread_join(t4, NULL);
+  char line[MAX_LINE_LENGTH];
+  char command[COMMAND_LEN];
+  char name[NAME_LEN];
+  uint32_t salary;
+  int num_threads;
 
+  //process line 1 of input file
+  if (fgets(line, MAX_LINE_LENGTH, inFile) == NULL) {
+        perror("Error reading the number of threads");
+        fclose(inFile);
+        fclose(outFile);
+        return 1;
+    }
+
+    //Parse line 1 to get the number of threads
+    // can remove thisn block if we dont use this anywhere later
+    if (sscanf(line, "threads,%d,0", &num_threads) != 1) {
+        perror("Invalid format in the first line");
+        fclose(inFile);
+        fclose(outFile);
+        return 1;
+    }
+
+  //create a hash table
+  //-> relpace with init function once we define it
+  struct HashTable hashTable;
+  struct HashRecord *head;
+
+  //process the rest of the infile
+  while (fgets(line, MAX_LINE_LENGTH, inFile)){
+    sscanf(line, "%s %s %u", command, name, &salary);
+
+    if(strcmp(command, "insert") == 0){
+      fprintf(outFile, "INSERT,%s,%s\n", name, salary);
+      hash_table_insert(&hashTable, &name, salary);
+    }
+    else if (strcmp(command, "delete") == 0){
+      fprintf(outFile, "DELETE,%s\n", name);
+      hash_table_delete(&hashTable, &name);
+    }
+    else if (strcmp(command, "search") == 0){
+      fprintf(outFile, "SEARCH,%s\n", name);
+      HashRecord* record = hash_table_search(&hashTable, &name)
+      fprintf(output, "%d,%s,%u\n", record->hash, record->name, record->salary);
+    }
+    else if (strcmp(command, "print") == 0){
+      print_hash_table(head, outFile);
+    }
+  }
+
+  //close all files
+  fclose(inFile);
+  fclose(outFile);
+  
   return 0;
 }
