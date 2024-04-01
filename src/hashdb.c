@@ -22,14 +22,14 @@ HashRecord *hash_table_search(HashTable *ht, char *name) {
     HashRecord *current = ht->head;
 
     // acquire the read lock of the linked list
-    ht->rg = rw_lock_read(ht->lock);
+    //ht->rg = rw_lock_read(ht->lock);
 
     // search the linked list for name
     while (current != NULL) {
         // if name is found, return it
         if (current->hash == hash) {
           // release the read lock
-          rw_lock_drop_write(ht->lock, ht->wg);
+          //rw_lock_drop_write(ht->lock, ht->wg);
           return current;
         }
 
@@ -37,7 +37,7 @@ HashRecord *hash_table_search(HashTable *ht, char *name) {
     }
 
     // release the read lock
-    rw_lock_drop_write(ht->lock, ht->wg);
+    //rw_lock_drop_write(ht->lock, ht->wg);
   
     return NULL;   
 }
