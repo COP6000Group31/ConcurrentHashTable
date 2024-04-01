@@ -2,6 +2,7 @@
 #define HASHDB_H
 
 #include <stdint.h>
+#include <string.h>
 
 #define NAME_LEN 50
 
@@ -28,6 +29,9 @@ void hash_table_insert(HashTable *ht, char *name, uint32_t salary);
 void hash_table_delete(HashTable *ht, char *name);
 
 /// Search the hash table for the key and return a pointer to the value.
-uint32_t *hash_table_search(HashTable *ht, char *name);
+HashRecord *hash_table_search(HashTable *ht, char *name);
+
+/// Jenkins's one at a time hash function
+uint32_t jenkins_one_at_a_time_hash(const uint8_t* key, size_t length);
 
 #endif // HASHDB_H
