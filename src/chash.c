@@ -11,13 +11,20 @@ produces output to the console
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <common.h>
 #include "hashdb.h"
+#include "rwlocks.h"
 
 #define MAX_LINE_LENGTH 100
 #define COMMAND_LEN 10
 
 int main() {
   FILE *inFile, *outFile;
+  char line[MAX_LINE_LENGTH];
+  char command[COMMAND_LEN];
+  char name[NAME_LEN];
+  uint32_t salary;
+  int num_threads;
 
   //Open input file
   inFile = fopen("commands.txt", "r");
@@ -32,12 +39,6 @@ int main() {
       perror("Error opening input file");
       return 1;
   }
-
-  char line[MAX_LINE_LENGTH];
-  char command[COMMAND_LEN];
-  char name[NAME_LEN];
-  uint32_t salary;
-  int num_threads;
 
   //process line 1 of input file
   if (fgets(line, MAX_LINE_LENGTH, inFile) == NULL) {
@@ -92,9 +93,9 @@ int main() {
 
     // need final printing to be done
 
-
     //close all files
     fclose(inFile);
     fclose(outFile);
     return 0;
+
 }
