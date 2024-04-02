@@ -28,6 +28,8 @@ typedef struct HashRecord {
 typedef struct HashTable {
   HashRecord head;
   RwLock lock;
+  int acquisitions; 
+  int releases;
 } HashTable;
 
 /// Initialize the hash table.

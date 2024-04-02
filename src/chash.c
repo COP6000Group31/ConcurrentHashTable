@@ -56,34 +56,45 @@ int main() {
         return 1;
     }
 
-  //create a hash table
-  struct HashTable hashTable;
-  hash_table_init(hashTable);
+    //TODO: set up array of pthread structs
 
-  //process the rest of the infile
-  while (fgets(line, MAX_LINE_LENGTH, inFile)){
-    sscanf(line, "%s %s %u", command, name, &salary);
+    //create a hash table
+    struct HashTable hashTable;
+    hash_table_init(hashTable);
 
-    if(strcmp(command, "insert") == 0){
-      fprintf(outFile, "INSERT,%s,%s\n", name, salary);
-      hash_table_insert(&hashTable, &name, salary);
-    }
-    else if (strcmp(command, "delete") == 0){
-      fprintf(outFile, "DELETE,%s\n", name);
-      hash_table_delete(&hashTable, &name);
-    }
-    else if (strcmp(command, "search") == 0){
-      fprintf(outFile, "SEARCH,%s\n", name);
-      HashRecord* record = hash_table_search(&hashTable, &name)
-      fprintf(output, "%d,%s,%u\n", record->hash, record->name, record->salary);
-    }
-    else if (strcmp(command, "print") == 0){
-      print_hash_table(hashTable->head, outFile);
-    }
-  }
+    //process the rest of the infile
+    while (fgets(line, MAX_LINE_LENGTH, inFile)){
+      sscanf(line, "%s %s %u", command, name, &salary);
 
-  //close all files
-  fclose(inFile);
-  fclose(outFile);
-  return 0;
+      if(strcmp(command, "insert") == 0){
+        fprintf(outFile, "INSERT,%s,%s\n", name, salary);
+        hash_table_insert(&hashTable, &name, salary);
+      }
+      else if (strcmp(command, "delete") == 0){
+        fprintf(outFile, "DELETE,%s\n", name);
+        hash_table_delete(&hashTable, &name);
+      }
+      else if (strcmp(command, "search") == 0){
+        fprintf(outFile, "SEARCH,%s\n", name);
+        HashRecord* record = hash_table_search(&hashTable, &name)
+        if (record != NULL)
+          fprintf(outFile, "%d,%s,%u\n", record->hash, record->name, record->salary);
+        else
+          fprintf(outFile, "No Record Found\n", );
+      }
+      else if (strcmp(command, "print") == 0){
+        print_hash_table(hashTable->head, outFile);
+      }
+      else{
+        perror("Unknown command recieved");
+      }
+    }
+
+    // need final printing to be done
+
+
+    //close all files
+    fclose(inFile);
+    fclose(outFile);
+    return 0;
 }
