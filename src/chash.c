@@ -48,54 +48,57 @@ int main() {
         return 1;
     }
 
-    //Parse line 1 to get the number of threads
-    // can remove thisn block if we dont use this anywhere later
-    if (sscanf(line, "threads,%d,0", &num_threads) != 1) {
-        perror("Invalid format in the first line");
-        fclose(inFile);
-        fclose(outFile);
-        return 1;
+  //Parse line 1 to get the number of threads
+  if (sscanf(line, "threads,%d,0", &num_threads) != 1) {
+      perror("Invalid format in the first line");
+      fclose(inFile);
+      fclose(outFile);
+      return 1;
+  }
+
+  //TODO: set up array of pthread structs
+
+  //create a hash table
+  struct HashTable hashTable;
+  hash_table_init(hashTable);
+
+  //process the rest of the infile
+  while (fgets(line, MAX_LINE_LENGTH, inFile) != NULL){
+    sscanf(line, "%s %s %u", command, name, &salary);
+
+    if(strcmp(command, "insert") == 0){
+      fprintf(outFile, "INSERT,%s,%s\n", name, salary);
+      hash_table_insert(&hashTable, &name, salary);
     }
-
-    //TODO: set up array of pthread structs
-
-    //create a hash table
-    struct HashTable hashTable;
-    hash_table_init(hashTable);
-
-    //process the rest of the infile
-    while (fgets(line, MAX_LINE_LENGTH, inFile)){
-      sscanf(line, "%s %s %u", command, name, &salary);
-
-      if(strcmp(command, "insert") == 0){
-        fprintf(outFile, "INSERT,%s,%s\n", name, salary);
-        hash_table_insert(&hashTable, &name, salary);
-      }
-      else if (strcmp(command, "delete") == 0){
-        fprintf(outFile, "DELETE,%s\n", name);
-        hash_table_delete(&hashTable, &name);
-      }
-      else if (strcmp(command, "search") == 0){
-        fprintf(outFile, "SEARCH,%s\n", name);
-        HashRecord* record = hash_table_search(&hashTable, &name)
-        if (record != NULL)
-          fprintf(outFile, "%d,%s,%u\n", record->hash, record->name, record->salary);
-        else
-          fprintf(outFile, "No Record Found\n", );
-      }
-      else if (strcmp(command, "print") == 0){
-        print_hash_table(hashTable->head, outFile);
-      }
-      else{
-        perror("Unknown command recieved");
-      }
+    else if (strcmp(command, "delete") == 0){
+      fprintf(outFile, "DELETE,%s\n", name);
+      hash_table_delete(&hashTable, &name);
     }
+    else if (strcmp(command, "search") == 0){
+      fprintf(outFile, "SEARCH,%s\n", name);
+      HashRecord* record = hash_table_search(&hashTable, &name)
+      if (record != NULL)
+        fprintf(outFile, "%d,%s,%u\n", record->hash, record->name, record->salary);
+      else
+        fprintf(outFile, "No Record Found\n", );
+    }
+    else if (strcmp(command, "print") == 0){
+      print_hash_table(hashTable->head, outFile);
+    }
+    else{
+      perror("Unknown command recieved");
+    }
+  }
 
-    // need final printing to be done
+  // need final printing to be done
+  //fprintf(outFile, "Number of lock acquisitions: %s\n", (hashTable->lock).acquisitionCtr);
+  //fprintf(outFile, "Number of lock releases: %s\n", (hashTable->lock).releaseCtr);
+  fprintf(outFile, "Final Table:\n", );
+  print_hash_table(hashTable->head, outFile);
 
-    //close all files
-    fclose(inFile);
-    fclose(outFile);
-    return 0;
+  //close all files
+  fclose(inFile);
+  fclose(outFile);
+  return 0;
 
 }
