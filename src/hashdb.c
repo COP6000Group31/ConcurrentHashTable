@@ -15,8 +15,6 @@ Concurrent Hash Table struct definitions
 void hash_table_init(HashTable *ht){
   ht->head = NULL;
   rw_lock_init(&ht->lock, &ht->head);
-  acquisitions = 0;
-  releases = 0;
 
   return;
 }

@@ -31,8 +31,6 @@ typedef struct HashRecord {
 typedef struct HashTable {
   RwLock lock;
   HashRecord *head;
-  int acquisitions;
-  int releases;
 } HashTable;
 
 /// Initialize the hash table.
