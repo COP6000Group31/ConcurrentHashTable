@@ -11,7 +11,6 @@ including Jenkins function and all linked list operations
 #ifndef HASHDB_H
 #define HASHDB_H
 
-#include "rwlocks.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
@@ -29,7 +28,6 @@ typedef struct HashRecord {
 
 /// A concurrent hash table.
 typedef struct HashTable {
-  RwLock lock;
   HashRecord *head;
 } HashTable;
 
