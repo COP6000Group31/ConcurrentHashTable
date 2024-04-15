@@ -8,15 +8,24 @@ Jonah Henriksson
 Main program that reads the commands.txt and
 produces output to the console
 */
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <common.h>
+#include <pthread.h>
 #include "hashdb.h"
 #include "rwlocks.h"
-#include <common.h>
 
 #define MAX_LINE_LENGTH 100
 #define COMMAND_LEN 10
 
 int main() {
   FILE *inFile, *outFile;
+  char line[MAX_LINE_LENGTH];
+  char command[COMMAND_LEN];
+  char name[NAME_LEN];
+  uint32_t salary;
+  int num_threads;
 
   //Open input file
   inFile = fopen("commands.txt", "r");
@@ -32,12 +41,6 @@ int main() {
       return 1;
   }
 
-  char line[MAX_LINE_LENGTH];
-  char command[COMMAND_LEN];
-  char name[NAME_LEN];
-  uint32_t salary;
-  int num_threads;
-
   //process line 1 of input file
   if (fgets(line, MAX_LINE_LENGTH, inFile) == NULL) {
         perror("Error reading the number of threads");
@@ -46,21 +49,24 @@ int main() {
         return 1;
     }
 
-    //Parse line 1 to get the number of threads
-    // can remove thisn block if we dont use this anywhere later
-    if (sscanf(line, "threads,%d,0", &num_threads) != 1) {
-        perror("Invalid format in the first line");
-        fclose(inFile);
-        fclose(outFile);
-        return 1;
-    }
+  //Parse line 1 to get the number of threads
+  if (sscanf(line, "threads,%d,0", &num_threads) != 1) {
+      perror("Invalid format in the first line");
+      fclose(inFile);
+      fclose(outFile);
+      return 1;
+  }
+
+  //set up array of pthread structs
+  pthread_t * pthreadArray;
+  pthreadArray = malloc (sizeof(pthread_t) * num_threads);
 
   //create a hash table
   struct HashTable hashTable;
   hash_table_init(hashTable);
 
   //process the rest of the infile
-  while (fgets(line, MAX_LINE_LENGTH, inFile)){
+  while (fgets(line, MAX_LINE_LENGTH, inFile) != NULL){
     sscanf(line, "%s %s %u", command, name, &salary);
 
     if(strcmp(command, "insert") == 0){
@@ -74,16 +80,28 @@ int main() {
     else if (strcmp(command, "search") == 0){
       fprintf(outFile, "SEARCH,%s\n", name);
       HashRecord* record = hash_table_search(&hashTable, &name)
-      fprintf(output, "%d,%s,%u\n", record->hash, record->name, record->salary);
+      if (record != NULL)
+        fprintf(outFile, "%d,%s,%u\n", record->hash, record->name, record->salary);
+      else
+        fprintf(outFile, "No Record Found\n", );
     }
     else if (strcmp(command, "print") == 0){
       print_hash_table(hashTable->head, outFile);
     }
+    else{
+      perror("Unknown command recieved");
+    }
   }
+
+  // need final printing to be done
+  //fprintf(outFile, "Number of lock acquisitions: %s\n", (hashTable->lock).acquisitionCtr);
+  //fprintf(outFile, "Number of lock releases: %s\n", (hashTable->lock).releaseCtr);
+  fprintf(outFile, "Final Table:\n", );
+  print_hash_table(hashTable->head, outFile);
 
   //close all files
   fclose(inFile);
   fclose(outFile);
-
   return 0;
+
 }

@@ -51,4 +51,7 @@ void print_hash_table(HashRecord *cur, FILE *outFile);
 /// Print the entire hash table to the output file.
 void print_hash_table(HashRecord *cur, FILE *outFile);
 
+/// Print the entire hash table to the output file.
+void print_hash_table(HashRecord *cur, FILE *outFile);
+
 #endif // HASHDB_H

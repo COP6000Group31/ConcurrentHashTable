@@ -8,7 +8,6 @@ Jonah Henriksson
 Concurrent Hash Table struct definitions
 */
 #include "hashdb.h"
-
 #include <stdint.h>
 #include <stdlib.h>
 
@@ -23,6 +22,7 @@ void hash_table_init(HashTable *ht){
 // Delete a record from the hash table.
 void hash_table_delete(HashTable *ht, char *name){
   //aquire write lock
+  rw_lock_write(&ht->lock, ht->head)
 
   // search for the record
   HashRecord *delRec = unlocked_hash_table_search(ht, name);
@@ -43,8 +43,9 @@ void hash_table_delete(HashTable *ht, char *name){
   free(delRec);
 
   //free the lock
-
+  rw_lock_drop_write(&ht->lock, ht->head)
   return;
+}
 
 // Jenkins one at a time hash function
 uint32_t jenkins_one_at_a_time_hash(const char *key, size_t length) {
@@ -84,6 +85,12 @@ HashRecord *unlocked_hash_table_search(HashTable *ht, char *name){
     // if key is found, stop looking
     if (current->hash == hash) {
       break;
+    }
+
+    current = current->next;
+  }
+
+  return current;
 }
 
 HashRecord *hash_table_search(HashTable *ht, char *name) {
@@ -95,8 +102,6 @@ HashRecord *hash_table_search(HashTable *ht, char *name) {
   // rw_lock_drop_write(ht->lock, ht->wg);
 
   return result;
-  // release the read lock
-  // rw_lock_drop_write(ht->lock, ht->wg);
 }
 
 void hash_table_insert(HashTable *ht, char *name, uint32_t salary) {
