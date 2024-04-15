@@ -12,6 +12,7 @@ produces output to the console
 #include <stdlib.h>
 #include <string.h>
 #include <common.h>
+#include <pthread.h>
 #include "hashdb.h"
 #include "rwlocks.h"
 
@@ -56,7 +57,9 @@ int main() {
       return 1;
   }
 
-  //TODO: set up array of pthread structs
+  //set up array of pthread structs
+  pthread_t * pthreadArray;
+  pthreadArray = malloc (sizeof(pthread_t) * num_threads);
 
   //create a hash table
   struct HashTable hashTable;
