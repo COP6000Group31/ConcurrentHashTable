@@ -47,6 +47,7 @@ int main() {
       return 1;
   }
 
+  
 // Read the number of threads
     fgets(line, sizeof(line), inFile);
     sscanf(line, "threads,%d,", &num_threads);
