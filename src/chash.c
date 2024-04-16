@@ -50,7 +50,7 @@ int main() {
 // Read the number of threads
     fgets(line, sizeof(line), inFile);
     sscanf(line, "threads,%d,", &num_threads);
-
+    fprintf(outFile, "Running %d threads\n", num_threads);
     while (fgets(line, sizeof(line), inFile) != NULL) {
         // Tokenize the line
         token = strtok(line, ",");
@@ -61,7 +61,6 @@ int main() {
                     // insert node into list
                     name = strtok(NULL, ",");
                     salary = atoi(strtok(NULL, ","));
-                    fprintf(outFile, "INSERT,%s,%u\n", name, salary);
                     hash_table_insert(&hashTable, name, salary, outFile);
                 } 
             else if (strcmp(command, "delete") == 0) 

@@ -47,7 +47,10 @@ void print_hash_table(HashRecord *cur, FILE *outFile) {
 void hash_table_insert(HashTable *ht, char *name, uint32_t salary, FILE *outFile) {
   int len = strlen(name);
   uint32_t hash = jenkins_one_at_a_time_hash(name, len);
+
+  fprintf(outFile, "INSERT,%u,%s,%u\n", hash, name, salary);
   fprintf(outFile, "WRITE LOCK ACQUIRED\n");
+
   // Search for the key in the linked list
   HashRecord *current = ht->head;
   while (current != NULL) {
@@ -70,7 +73,7 @@ void hash_table_insert(HashTable *ht, char *name, uint32_t salary, FILE *outFile
   newRecord->next = NULL;
   newRecord->prev = NULL;
 
-  // Insert the new node at the beginning of the linked list
+  // insert in numerical order
  if (ht->head == NULL || (ht)->head->hash >= hash) {
         newRecord->next = ht->head;
         if (ht->head != NULL) {
