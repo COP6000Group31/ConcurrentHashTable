@@ -11,91 +11,107 @@ produces output to the console
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "hashdb.h"
+#include <pthread.h>
 #include "hashdb.c"
 
 #define MAX_LINE_LENGTH 100
 #define COMMAND_LEN 10
+#define MAX_NAME_LEN 50
 
+typedef struct ThreadArg
+{
+    HashTable *hashTable;
+    FILE *outFile;
+    char command[COMMAND_LEN];
+    char name[MAX_NAME_LEN];
+    uint32_t salary;
+} ThreadArg;
 
-int main() {
-  FILE *inFile, *outFile;
- char filename[] = "commands.txt";
- char line[100];
- char *token;
- char *command, *name;
- uint32_t salary;
- int num_threads;
- int locks = 0;
- int releases = 0;
+void *process_command(void *arg)
+{
+    ThreadArg *threadArg = (ThreadArg *)arg;
+    if (strcmp(threadArg->command, "insert") == 0)
+    {
+        hash_table_insert(threadArg->hashTable, threadArg->name, threadArg->salary, threadArg->outFile);
+    }
+    else if (strcmp(threadArg->command, "delete") == 0)
+    {
+        hash_table_delete(threadArg->hashTable, threadArg->name, threadArg->outFile);
+    }
+    else if (strcmp(threadArg->command, "search") == 0)
+    {
+        hash_table_search(threadArg->hashTable, threadArg->name, threadArg->outFile);
+    }
+    else if (strcmp(threadArg->command, "print") == 0)
+    {
+        print_hash_table(threadArg->hashTable->head, threadArg->outFile);
+    }
+    return NULL;
+}
 
- struct HashTable hashTable;
- hash_table_init(&hashTable);
+int main()
+{
+    FILE *inFile, *outFile;
+    char filename[] = "commands.txt";
+    char line[MAX_LINE_LENGTH];
+    int num_threads;
 
+    HashTable hashTable;
+    hash_table_init(&hashTable);
 
-  //Open input file
-  inFile = fopen("commands.txt", "r");
-  if (inFile == NULL) {
-      perror("Error opening input file");
-      return 1;
-  }
+    // Open input file
+    inFile = fopen(filename, "r");
+    if (inFile == NULL)
+    {
+        perror("Error opening input file");
+        return 1;
+    }
 
-  //Open Output File
-  outFile = fopen("output.txt", "w");
-  if (outFile == NULL) {
-      perror("Error opening input file");
-      return 1;
-  }
+    // Open Output File
+    outFile = fopen("output.txt", "w");
+    if (outFile == NULL)
+    {
+        perror("Error opening output file");
+        return 1;
+    }
 
-  
-// Read the number of threads
+    // Read the number of threads
     fgets(line, sizeof(line), inFile);
     sscanf(line, "threads,%d,", &num_threads);
     fprintf(outFile, "Running %d threads\n", num_threads);
-    while (fgets(line, sizeof(line), inFile) != NULL) {
-        // Tokenize the line
-        token = strtok(line, ",");
-        if (token != NULL) {
-            command = token;
-            if (strcmp(command, "insert") == 0) 
-                {
-                    // insert node into list
-                    name = strtok(NULL, ",");
-                    salary = atoi(strtok(NULL, ","));
-                    hash_table_insert(&hashTable, name, salary, outFile);
-                } 
-            else if (strcmp(command, "delete") == 0) 
-                {
-                    // get name and call delete function on appropriate node
-                    name = strtok(NULL, ",");
-                    fprintf(outFile, "DELETE,%s\n", name);
-                    hash_table_delete(&hashTable, name, outFile);
-                } 
-            else if (strcmp(command, "search") == 0) 
-                {
-                    // search for name and output to fil
-                    fprintf(outFile, "SEARCH,%s", name);
-                    name = strtok(NULL, ",");
-                    HashRecord* record = hash_table_search(&hashTable, name, outFile);
-                    if (record != NULL)
-                        fprintf(outFile, "%d,%s,%u\n", record->hash, record->name, record->salary);
-                    else
-                        fprintf(outFile, "No Record Found\n");
-            
-                } 
-            else if (strcmp(command, "print") == 0) 
-                {
-                    //Print List
-                    print_hash_table(hashTable.head, outFile);
-                }
-        }
-    }
-    fprintf(outFile, "\nNumber of lock acquisitions: %d\n", locks);
-    fprintf(outFile,"Number of lock releases: %d\n", releases);
-    print_hash_table(hashTable.head, outFile);
-  //close all files
-  fclose(inFile);
-  fclose(outFile);
-  return 0;
 
+    pthread_t *threads = malloc(num_threads * sizeof(pthread_t));
+    ThreadArg *threadArgs = malloc(num_threads * sizeof(ThreadArg));
+
+    int threadIndex = 0;
+    while (fgets(line, sizeof(line), inFile) != NULL)
+    {
+        char *token = strtok(line, ",");
+        strcpy(threadArgs[threadIndex].command, token);
+
+        if (strcmp(token, "insert") == 0 || strcmp(token, "delete") == 0 || strcmp(token, "search") == 0)
+        {
+            strcpy(threadArgs[threadIndex].name, strtok(NULL, ","));
+            threadArgs[threadIndex].salary = (strcmp(token, "insert") == 0) ? atoi(strtok(NULL, ",")) : 0;
+        }
+
+        threadArgs[threadIndex].hashTable = &hashTable;
+        threadArgs[threadIndex].outFile = outFile;
+
+        pthread_create(&threads[threadIndex], NULL, process_command, &threadArgs[threadIndex]);
+        threadIndex++;
+    }
+
+    for (int i = 0; i < num_threads; i++)
+    {
+        pthread_join(threads[i], NULL);
+    }
+    fprintf(outFile, "Final Hash Table\n");
+    print_hash_table(hashTable.head, outFile);
+    // Close all files
+    fclose(inFile);
+    fclose(outFile);
+    free(threads);
+    free(threadArgs);
+    return 0;
 }

@@ -18,7 +18,8 @@ including Jenkins function and all linked list operations
 #define NAME_LEN 50
 
 /// Record in HashTable.
-typedef struct HashRecord {
+typedef struct HashRecord
+{
   uint32_t hash;           ///< Hash of name.
   char name[NAME_LEN];     ///< Name of employee.
   uint32_t salary;         ///< Annual salary of employee.
@@ -27,7 +28,8 @@ typedef struct HashRecord {
 } HashRecord;
 
 /// A concurrent hash table.
-typedef struct HashTable {
+typedef struct HashTable
+{
   HashRecord *head;
 } HashTable;
 
@@ -45,6 +47,5 @@ HashRecord *hash_table_search(HashTable *ht, char *name, FILE *outFile);
 
 /// Print the entire hash table to the output file.
 void print_hash_table(HashRecord *cur, FILE *outFile);
-
 
 #endif // HASHDB_H
