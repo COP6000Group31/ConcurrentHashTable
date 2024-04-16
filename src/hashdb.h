@@ -35,21 +35,16 @@ typedef struct HashTable {
 void hash_table_init(HashTable *ht);
 
 /// Insert or update a record in the hash table.
-void hash_table_insert(HashTable *ht, char *name, uint32_t salary);
+void hash_table_insert(HashTable *ht, char *name, uint32_t salary, FILE *outFile);
 
 /// Delete a record from the hash table.
-void hash_table_delete(HashTable *ht, char *name);
+void hash_table_delete(HashTable *ht, char *name, FILE *outFile);
 
 /// Search the hash table for the key and return a pointer to the value.
-HashRecord *hash_table_search(HashTable *ht, char *name);
+HashRecord *hash_table_search(HashTable *ht, char *name, FILE *outFile);
 
 /// Print the entire hash table to the output file.
 void print_hash_table(HashRecord *cur, FILE *outFile);
 
-/// Print the entire hash table to the output file.
-void print_hash_table(HashRecord *cur, FILE *outFile);
-
-/// Print the entire hash table to the output file.
-void print_hash_table(HashRecord *cur, FILE *outFile);
 
 #endif // HASHDB_H

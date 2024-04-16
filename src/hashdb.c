@@ -34,17 +34,20 @@ uint32_t jenkins_one_at_a_time_hash(const char *key, size_t length) {
 /* given the head of the hash table, print the entire contents
    of the list to the output file */
 void print_hash_table(HashRecord *cur, FILE *outFile) {
+  fprintf(outFile, "READ LOCK ACQUIRED\n");
+
   while (cur != NULL) {
     fprintf(outFile, "%u,%s,%u\n", cur->hash, cur->name, cur->salary);
     cur = cur->next;
   }
+  fprintf(outFile, "READ LOCK RELEASED\n");
   return;
 }
 
-void hash_table_insert(HashTable *ht, char *name, uint32_t salary) {
+void hash_table_insert(HashTable *ht, char *name, uint32_t salary, FILE *outFile) {
   int len = strlen(name);
   uint32_t hash = jenkins_one_at_a_time_hash(name, len);
-
+  fprintf(outFile, "WRITE LOCK ACQUIRED\n");
   // Search for the key in the linked list
   HashRecord *current = ht->head;
   while (current != NULL) {
@@ -87,33 +90,14 @@ void hash_table_insert(HashTable *ht, char *name, uint32_t salary) {
         current->next = newRecord;
         newRecord->prev = current;
     }
+    fprintf(outFile, "WRITE LOCK RELEASED\n");
 }
 
-HashRecord *unlocked_hash_table_search(HashTable *ht, char *name){
-  // compute the search key's hash value
-  uint32_t hash = jenkins_one_at_a_time_hash(name, strlen(name));
-
-  //start at head of list
-  HashRecord *current = ht->head;
-
-  // search the linked list for hash
-  while (current != NULL) {
-    // if key is found, stop looking
-    if (current->hash == hash) {
-      break;
-    }
-
-    current = current->next;
-  }
-    printf("search result: %s\n", current->name);
-  return current;
-}
-
-HashRecord *hash_table_search(HashTable *ht, char *name) {
+HashRecord *hash_table_search(HashTable *ht, char *name, FILE *outFile) {
 
 // compute the search key's hash value
   uint32_t hash = jenkins_one_at_a_time_hash(name, strlen(name));
-
+  fprintf(outFile, "READ LOCK ACQUIRED\n");
   //start at head of list
   HashRecord *current = ht->head;
 
@@ -121,21 +105,23 @@ HashRecord *hash_table_search(HashTable *ht, char *name) {
   while (current != NULL) {
     // if key is found, stop looking
     if (current->hash == hash) {
-      break;
+      return current;
     }
 
     current = current->next;
   }
-
-  return current;
+  fprintf(outFile, "READ LOCK RELEASED\n");
+  return NULL;
 }
 
-void hash_table_delete(HashTable *ht, char *name){
+void hash_table_delete(HashTable *ht, char *name, FILE *outFile){
   //aquire write lock
   // search for the record
   int length = strlen(name);
+  uint32_t hash = jenkins_one_at_a_time_hash(name, length);
 
-  uint32_t hash = jenkins_one_at_a_time_hash(name, length); 
+  fprintf(outFile, "WRITE LOCK ACQUIRED\n");
+
   HashRecord *current = ht->head;
 
   // search the linked list for hash
@@ -157,6 +143,6 @@ void hash_table_delete(HashTable *ht, char *name){
 
     current = current->next;
   }
-
+  fprintf(outFile, "WRITE LOCK RELEASED\n");
   return;
 }

@@ -62,21 +62,21 @@ int main() {
                     name = strtok(NULL, ",");
                     salary = atoi(strtok(NULL, ","));
                     fprintf(outFile, "INSERT,%s,%u\n", name, salary);
-                    hash_table_insert(&hashTable, name, salary);
+                    hash_table_insert(&hashTable, name, salary, outFile);
                 } 
             else if (strcmp(command, "delete") == 0) 
                 {
                     // get name and call delete function on appropriate node
                     name = strtok(NULL, ",");
                     fprintf(outFile, "DELETE,%s\n", name);
-                    hash_table_delete(&hashTable, name);
+                    hash_table_delete(&hashTable, name, outFile);
                 } 
             else if (strcmp(command, "search") == 0) 
                 {
                     // search for name and output to fil
                     fprintf(outFile, "SEARCH,%s", name);
                     name = strtok(NULL, ",");
-                    HashRecord* record = hash_table_search(&hashTable, name);
+                    HashRecord* record = hash_table_search(&hashTable, name, outFile);
                     if (record != NULL)
                         fprintf(outFile, "%d,%s,%u\n", record->hash, record->name, record->salary);
                     else
