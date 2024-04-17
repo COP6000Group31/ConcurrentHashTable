@@ -11,6 +11,9 @@ Concurrent Hash Table struct definitions
 #include <stdint.h>
 #include <stdlib.h>
 
+extern int num_locks = 0;
+extern int num_releases = 0;
+
 void hash_table_init(HashTable *ht)
 {
   ht->head = NULL;
@@ -39,6 +42,7 @@ uint32_t jenkins_one_at_a_time_hash(const char *key, size_t length)
 void print_hash_table(HashTable *ht, FILE *outFile)
 {
 
+  num_locks++;
   rwlock_acquire_readlock(&ht->lock);
   fprintf(outFile, "READ LOCK ACQUIRED\n");
 
@@ -50,6 +54,7 @@ void print_hash_table(HashTable *ht, FILE *outFile)
   }
 
   rwlock_release_readlock(&ht->lock);
+  num_releases++;
   fprintf(outFile, "READ LOCK RELEASED\n");
 }
 
@@ -60,6 +65,7 @@ void hash_table_insert(HashTable *ht, char *name, uint32_t salary, FILE *outFile
 
   fprintf(outFile, "INSERT,%u,%s,%u\n", hash, name, salary);
 
+  num_locks++;
   rwlock_acquire_writelock(&ht->lock);
   fprintf(outFile, "WRITE LOCK ACQUIRED\n");
 
@@ -115,12 +121,14 @@ void hash_table_insert(HashTable *ht, char *name, uint32_t salary, FILE *outFile
     newRecord->prev = current;
   }
   rwlock_release_writelock(&ht->lock);
+  num_releases++;
   fprintf(outFile, "WRITE LOCK RELEASED\n");
 }
 
 void hash_table_search(HashTable *ht, char *name, FILE *outFile)
 {
   uint32_t hash = jenkins_one_at_a_time_hash(name, strlen(name));
+  num_locks++;
   rwlock_acquire_readlock(&ht->lock);
   fprintf(outFile, "READ LOCK ACQUIRED\n");
 
@@ -136,12 +144,14 @@ void hash_table_search(HashTable *ht, char *name, FILE *outFile)
   }
 
   rwlock_release_readlock(&ht->lock);
+  num_releases++;
   fprintf(outFile, "READ LOCK RELEASED\n");
 }
 
 void hash_table_delete(HashTable *ht, char *name, FILE *outFile)
 {
   uint32_t hash = jenkins_one_at_a_time_hash(name, strlen(name));
+  num_locks++;
   rwlock_acquire_writelock(&ht->lock);
   fprintf(outFile, "WRITE LOCK ACQUIRED\n");
 
@@ -171,5 +181,6 @@ void hash_table_delete(HashTable *ht, char *name, FILE *outFile)
   }
 
   rwlock_release_writelock(&ht->lock);
+  num_releases++;
   fprintf(outFile, "WRITE LOCK RELEASED\n");
 }

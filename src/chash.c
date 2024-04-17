@@ -106,8 +106,13 @@ int main()
     {
         pthread_join(threads[i], NULL);
     }
-    fprintf(outFile, "Final Hash Table\n");
+
+    // Final Print
+    fprintf(outFile, "\nFinal Hash Table\n");
+    fprintf(outFile, "Number of lock acquisitions: %d\n", num_locks);
+    fprintf(outFile, "Number of lock releases: %d\n", num_releases);
     print_hash_table(&hashTable, outFile);
+
     //   Close all files
     fclose(inFile);
     fclose(outFile);
