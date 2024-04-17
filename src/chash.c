@@ -44,7 +44,7 @@ void *process_command(void *arg)
     }
     else if (strcmp(threadArg->command, "print") == 0)
     {
-        print_hash_table(threadArg->hashTable->head, threadArg->outFile);
+        print_hash_table(threadArg->hashTable, threadArg->outFile);
     }
     return NULL;
 }
@@ -107,8 +107,8 @@ int main()
         pthread_join(threads[i], NULL);
     }
     fprintf(outFile, "Final Hash Table\n");
-    print_hash_table(hashTable.head, outFile);
-    // Close all files
+    print_hash_table(&hashTable, outFile);
+    //   Close all files
     fclose(inFile);
     fclose(outFile);
     free(threads);
