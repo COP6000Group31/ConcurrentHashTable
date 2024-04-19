@@ -6,7 +6,7 @@ Run `make` to build `chash`.
 
 ## Running
 
-Run `make run`to build and run `chash`
+Run `./chash`.
 
 AI USE:
 
