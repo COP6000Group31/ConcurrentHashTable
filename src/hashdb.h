@@ -11,27 +11,18 @@ including Jenkins function and all linked list operations
 #ifndef HASHDB_H
 #define HASHDB_H
 
-#include "hashdb.h"
 #include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
+#include <stdio.h>
 
 // Include semaphore-based locking definitions
 #include "common.h"
 #include "common_threads.h"
-#include "rwlocks.c"
-
-#ifdef linux
-#include <semaphore.h>
-#elif __APPLE__
-#include "zemaphore.h"
-#endif
+#include "rwlocks.h"
 
 #define NAME_LEN 50
 
 /// Record in HashTable.
-typedef struct HashRecord
-{
+typedef struct HashRecord {
   uint32_t hash;
   char name[NAME_LEN]; // Adjust as needed for actual name length
   uint32_t salary;
@@ -40,8 +31,7 @@ typedef struct HashRecord
 } HashRecord;
 
 /// A concurrent hash table.
-typedef struct HashTable
-{
+typedef struct HashTable {
   HashRecord *head;
   rwlock_t lock;
 } HashTable;
@@ -50,7 +40,8 @@ typedef struct HashTable
 void hash_table_init(HashTable *ht);
 
 /// Insert or update a record in the hash table.
-void hash_table_insert(HashTable *ht, char *name, uint32_t salary, FILE *outFile);
+void hash_table_insert(HashTable *ht, char *name, uint32_t salary,
+                       FILE *outFile);
 
 /// Delete a record from the hash table.
 void hash_table_delete(HashTable *ht, char *name, FILE *outFile);

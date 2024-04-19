@@ -1,14 +1,13 @@
 #ifndef RWLOCK_H
 #define RWLOCK_H
 
-#include <semaphore.h>
+#include <common_threads.h>
 
 // Define the rwlock_t structure
-typedef struct _rwlock_t
-{
-    sem_t writelock;
-    sem_t lock;
-    int readers;
+typedef struct rwlock_t {
+  sem_t writelock;
+  sem_t lock;
+  int readers;
 } rwlock_t;
 
 // Function prototypes for initializing and managing read-write locks
