@@ -9,8 +9,6 @@ Concurrent Hash Table struct definitions
 */
 #include "hashdb.h"
 #include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
 
 extern int num_locks;
 extern int num_releases;

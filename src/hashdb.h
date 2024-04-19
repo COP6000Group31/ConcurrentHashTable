@@ -13,6 +13,8 @@ including Jenkins function and all linked list operations
 
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 // Include semaphore-based locking definitions
 #include "common.h"

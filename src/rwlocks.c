@@ -1,5 +1,4 @@
 #include "rwlocks.h"
-#include <stdio.h>
 
 void rwlock_init(rwlock_t *lock) {
   lock->readers = 0;

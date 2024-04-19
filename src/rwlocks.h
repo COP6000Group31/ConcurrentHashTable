@@ -2,6 +2,7 @@
 #define RWLOCK_H
 
 #include <common_threads.h>
+#include <stdio.h>
 
 // Define the rwlock_t structure
 typedef struct rwlock_t {

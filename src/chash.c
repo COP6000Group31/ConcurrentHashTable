@@ -9,9 +9,6 @@ Main program that reads the commands.txt and
 produces output to the console
 */
 #include "hashdb.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 #define MAX_LINE_LENGTH 100
 #define COMMAND_LEN 10
