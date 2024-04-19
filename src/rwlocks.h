@@ -1,56 +1,21 @@
-/*
-COP4600 PA#2 Group 31
-Evelyn Adams
-Andrew Brink
-Alicia Hassan
-Jonah Henriksson
-
-Reader-Writer locks implementation
-*/
-
-#ifndef RWLOCKS_H
-#define RWLOCKS_H
+#ifndef RWLOCK_H
+#define RWLOCK_H
 
 #include <common_threads.h>
-#include <stdbool.h>
-#include <stdint.h>
+#include <stdio.h>
 
-/// A Read-Write lock for arbitrary data.
-///
-/// By providing guards for reads/writes, the interface is safe from readers
-/// writing. It could be safer, but alas, C lacks generics and move semantics.
-typedef struct RwLock {
-  uint32_t num_ra;     ///< Number of readers active.
-  uint32_t num_ww;     ///< Number of writers waiting.
-  bool wa;             ///< If there is an active writer.
-  pthread_mutex_t g;   ///< Mutex for critical area.
-  pthread_cond_t cond; ///< Condition variable for blocking threads.
-  void *data;          ///< Associated data of lock.
-} RwLock;
+// Define the rwlock_t structure
+typedef struct rwlock_t {
+  sem_t writelock;
+  sem_t lock;
+  int readers;
+} rwlock_t;
 
-/// A guard for readers.
-typedef struct RGuard {
-  void const *data; //< Read-only data.
-} RGuard;
+// Function prototypes for initializing and managing read-write locks
+void rwlock_init(rwlock_t *lock);
+void rwlock_acquire_readlock(rwlock_t *lock);
+void rwlock_release_readlock(rwlock_t *lock);
+void rwlock_acquire_writelock(rwlock_t *lock);
+void rwlock_release_writelock(rwlock_t *lock);
 
-/// A guard for writers.
-typedef struct WGuard {
-  void *data; //< Read-Write data.
-} WGuard;
-
-/// Initialize the Read-Write lock.
-void rw_lock_init(RwLock *lock, void *data);
-
-/// Get read access to the lock.
-RGuard rw_lock_read(RwLock *lock);
-
-/// Get write access to the lock.
-WGuard rw_lock_write(RwLock *lock);
-
-/// Drop access to reader.
-void rw_lock_drop_read(RwLock *lock, RGuard guard);
-
-/// Drop access to writer.
-void rw_lock_drop_write(RwLock *lock, WGuard guard);
-
-#endif // RWLOCKS_H
+#endif // RWLOCK_H
