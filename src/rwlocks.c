@@ -1,30 +1,48 @@
 #include "rwlocks.h"
 
 void rwlock_init(rwlock_t *lock) {
-  lock->readers = 0;
-  Sem_init(&lock->lock, 1);
-  Sem_init(&lock->writelock, 1);
+  lock->num_ra = 0;
+  lock->num_ww = 0;
+  lock->wa = false;
+  Mutex_init(&lock->g);
+  Cond_init(&lock->cond);
 }
 
 void rwlock_acquire_readlock(rwlock_t *lock) {
-  Sem_wait(&lock->lock);
-  lock->readers++;
-  if (lock->readers == 1)
-    Sem_wait(&lock->writelock);
-  Sem_post(&lock->lock);
+  Mutex_lock(&lock->g);
+  while (lock->num_ww > 0 || lock->wa) {
+    Cond_wait(&lock->cond, &lock->g);
+  }
+  lock->num_ra += 1;
+  Mutex_unlock(&lock->g);
 }
 
 void rwlock_release_readlock(rwlock_t *lock) {
-  Sem_wait(&lock->lock);
-  lock->readers--;
-  if (lock->readers == 0)
-    Sem_post(&lock->writelock);
-  Sem_post(&lock->lock);
+  Mutex_lock(&lock->g);
+  lock->num_ra -= 1;
+  if (lock->num_ra == 0) {
+    Cond_signal(&lock->cond);
+  }
+  Mutex_unlock(&lock->g);
 }
 
-void rwlock_acquire_writelock(rwlock_t *lock) { Sem_wait(&lock->writelock); }
+void rwlock_acquire_writelock(rwlock_t *lock) {
+  Mutex_lock(&lock->g);
+  lock->num_ww += 1;
+  while (lock->num_ra > 0 || lock->wa) {
+    Cond_wait(&lock->cond, &lock->g);
+  }
+  lock->num_ww -= 1;
+  lock->wa = true;
+  Mutex_unlock(&lock->g);
+}
 
-void rwlock_release_writelock(rwlock_t *lock) { Sem_post(&lock->writelock); }
+void rwlock_release_writelock(rwlock_t *lock) {
+  Mutex_lock(&lock->g);
+  lock->wa = false;
+  Cond_signal(&lock->cond);
+  Mutex_unlock(&lock->g);
+}
 
 int read_loops;
 int write_loops;
