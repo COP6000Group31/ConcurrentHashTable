@@ -71,27 +71,27 @@ int main() {
   sscanf(line, "threads,%d,", &num_threads);
   fprintf(outFile, "Running %d threads\n", num_threads);
 
-  pthread_t *threads = malloc(num_threads * sizeof(pthread_t));
-  ThreadArg *threadArgs = malloc(num_threads * sizeof(ThreadArg));
+  pthread_t *threads = calloc(num_threads, sizeof(pthread_t));
+  ThreadArg *threadArgs = calloc(num_threads, sizeof(ThreadArg));
 
-  int threadIndex = 0;
-  while (fgets(line, sizeof(line), inFile) != NULL) {
+  for (int i = 0; i < num_threads; i++) {
+    if (fgets(line, sizeof(line), inFile) == NULL) {
+      break;
+    }
     char *token = strtok(line, ",");
-    strcpy(threadArgs[threadIndex].command, token);
+    strcpy(threadArgs[i].command, token);
 
     if (strcmp(token, "insert") == 0 || strcmp(token, "delete") == 0 ||
         strcmp(token, "search") == 0) {
-      strcpy(threadArgs[threadIndex].name, strtok(NULL, ","));
-      threadArgs[threadIndex].salary =
-          (strcmp(token, "insert") == 0) ? atoi(strtok(NULL, ",")) : 0;
+      strcpy(threadArgs[i].name, strtok(NULL, ","));
+      threadArgs[i].salary =
+          (strcmp(token, "insert") == 0) ? atoi(strtok(NULL, "\n")) : 0;
     }
 
-    threadArgs[threadIndex].hashTable = &hashTable;
-    threadArgs[threadIndex].outFile = outFile;
+    threadArgs[i].hashTable = &hashTable;
+    threadArgs[i].outFile = outFile;
 
-    pthread_create(&threads[threadIndex], NULL, process_command,
-                   &threadArgs[threadIndex]);
-    threadIndex++;
+    pthread_create(&threads[i], NULL, process_command, &threadArgs[i]);
   }
 
   for (int i = 0; i < num_threads; i++) {
